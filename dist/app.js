@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const employeeRoutes_1 = __importDefault(require("./src/routes/employeeRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = parseInt(process.env.PORT || '3000', 10);
@@ -13,10 +14,8 @@ const databaseUrl = process.env.DATABASE_URL || '';
 mongoose_1.default.connect(databaseUrl).then(() => {
     console.log(`App running at http://localhost:${port}`);
     app.listen(port);
-}).catch((error) => {
-    console.log(error);
+}).catch(() => {
+    console.log("we found some errors");
 });
 app.use(express_1.default.json());
-app.get('/', (res) => {
-    res.send('Hello World! again');
-});
+app.use('/api', employeeRoutes_1.default);
