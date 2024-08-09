@@ -9,6 +9,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const employeeRoutes_1 = __importDefault(require("./src/routes/employeeRoutes"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swagger_1 = require("./swagger");
+const errorHandler_1 = require("./src/middleware/errorHandler");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const app_url = process.env.APP_URL || '';
@@ -21,6 +22,7 @@ mongoose_1.default.connect(databaseUrl).then(() => {
     console.log("we found some errors");
 });
 app.use(express_1.default.json());
+app.use(errorHandler_1.errorHandler);
 app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_1.swaggerSpec));
 app.use('/api', employeeRoutes_1.default);
 app.use('*', (req, res) => {

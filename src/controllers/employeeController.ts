@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { Employee } from '../models/Employee';
+import { Request, Response } from "express";
+import { Employee, IEmployee } from "../models/Employee";
 
 /**
  * @swagger
@@ -67,13 +67,15 @@ import { Employee } from '../models/Employee';
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Employee'
+ *       500:
+ *         description: An error occurred while fetching the employee
  */
 const getEmployees = async (req: Request, res: Response): Promise<void> => {
   try {
-      const employees = await Employee.find();
-      res.status(200).json(employees);
-  } catch (error) {    
-      res.status(500).json(error);
+    const employees = await Employee.find();
+    res.status(200).json(employees);
+  } catch (error) {
+    res.status(500).json({ message: '"An error occurred while fetching the employees' });
   }
 };
 
@@ -99,11 +101,20 @@ const getEmployees = async (req: Request, res: Response): Promise<void> => {
  */
 const createEmployee = async (req: Request, res: Response): Promise<void> => {
   try {
-      const employee = new Employee(req.body);
-      await employee.save();
-      res.status(201).json({message: 'Employee created successfully'});
+    const { name, position, department, hireDate, salary, contactDetails } =
+      req.body;
+    const newEmployee: IEmployee = new Employee({
+      name,
+      position,
+      department,
+      hireDate,
+      salary,
+      contactDetails,
+    });
+    await newEmployee.save();
+    res.status(201).json({ message: "Employee created successfully" });
   } catch (error) {
-      res.status(400).json(error);
+    res.status(400).json({ message: "An error occurred while creating the employee" });
   }
 };
 
@@ -128,19 +139,37 @@ const createEmployee = async (req: Request, res: Response): Promise<void> => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Employee'
+ *       400:
+ *         description: Invalid employee ID format
  *       404:
  *         description: The employee was not found
  *       500:
- *         description: Cast to ObjectId failed for value
+ *         description: An error occurred while fetching the employee
  */
 const getEmployeeById = async (req: Request, res: Response): Promise<void> => {
-  try {    
-      const employee = await Employee.findById(req.params.id);
-      
-      res.status(200).json(employee);
+  try {
+    const { id } = req.params;
 
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      res.status(400).json({ message: "Invalid employee ID format" });
+      return;
+    }
+
+    const updatedEmployee = await Employee.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedEmployee) {
+      res.status(404).json({ message: "Employee not found" });
+      return;
+    }
+
+    const employee = await Employee.findById(req.params.id);
+
+    res.status(200).json(employee);
   } catch (error) {
-      res.status(500).json({message: "Employee not found"});
+    res.status(500).json({ message: "An error occurred while fetching the employee" });
   }
 };
 
@@ -168,19 +197,35 @@ const getEmployeeById = async (req: Request, res: Response): Promise<void> => {
  *     responses:
  *       200:
  *         description: The employee was updated
+ *       400:
+ *         description: Invalid employee ID format
  *       404:
  *         description: The employee was not found
  *       500:
- *         description: Some error happened
+ *         description: An error occurred while updating the employee
  */
 const updateEmployee = async (req: Request, res: Response): Promise<void> => {
   try {
-      await Employee.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-      
-      res.status(200).json({message: "Employee updated successfully"});
+    const { id } = req.params;
 
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      res.status(400).json({ message: "Invalid employee ID format" });
+      return;
+    }
+
+    const updatedEmployee = await Employee.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedEmployee) {
+      res.status(404).json({ message: "Employee not found" });
+      return;
+    }
+
+    res.status(200).json({ message: "Employee updated successfully" });
   } catch (error) {
-      res.status(400).json({message: "Employee not found"});
+    res.status(500).json({ message: "An error occurred while updating the employee" });
   }
 };
 
@@ -201,17 +246,32 @@ const updateEmployee = async (req: Request, res: Response): Promise<void> => {
  *     responses:
  *       200:
  *         description: The employee was deleted
+ *       400:
+ *         description: Invalid employee ID format
  *       404:
  *         description: The employee was not found
+ *       500:
+ *         description: An error occurred while deleting the employee
  */
 const deleteEmployee = async (req: Request, res: Response): Promise<void> => {
   try {
-      await Employee.findByIdAndDelete(req.params.id);
+    const { id } = req.params;
 
-          res.status(200).json({message: "Employee deleted successfully"});
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      res.status(400).json({ message: "Invalid employee ID format" });
+      return;
+    }
 
+    const deletedEmployee = await Employee.findByIdAndDelete(id);
+
+    if (!deletedEmployee) {
+      res.status(404).json({ message: 'Employee not found' });
+      return;
+    }
+
+    res.status(200).json({ message: "Employee deleted successfully" });
   } catch (error) {
-      res.status(500).json({message: "Employee not found"});
+    res.status(500).json({ message: "An error occurred while deleting the employee" });
   }
 };
 
@@ -220,5 +280,5 @@ export {
   createEmployee,
   getEmployeeById,
   updateEmployee,
-  deleteEmployee
-}
+  deleteEmployee,
+};

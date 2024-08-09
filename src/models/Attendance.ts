@@ -1,8 +1,8 @@
 import { Schema, model, Document, Types } from "mongoose";
-import { Employee } from "./Employee";
+import { IEmployee } from "./Employee";
 
 interface IAttendance extends Document {
-  employeeId: Types.ObjectId | Employee;
+  employeeId: Types.ObjectId | IEmployee;
   date: Date;
   clockInTime: number;
   clockOutTime: number;

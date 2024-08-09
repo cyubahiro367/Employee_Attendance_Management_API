@@ -2,9 +2,11 @@ import express, {Express, Request, Response} from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import employeeRoutes from './src/routes/employeeRoutes';
-
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
+import { errorHandler } from './src/middleware/errorHandler';
+
+
 
 dotenv.config();
 
@@ -21,6 +23,7 @@ mongoose.connect(databaseUrl).then(() => {
 });
 
 app.use(express.json());
+app.use(errorHandler);
 
 // Swagger UI setup
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

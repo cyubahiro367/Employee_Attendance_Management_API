@@ -1,7 +1,7 @@
 // src/models/Employee.ts
 import { Schema, model, Document } from "mongoose";
 
-interface Employee extends Document {
+interface IEmployee extends Document {
   name: string;
   position: string;
   department: string;
@@ -10,7 +10,7 @@ interface Employee extends Document {
   contactDetails: string;
 }
 
-const employeeSchema = new Schema<Employee>({
+const employeeSchema = new Schema<IEmployee>({
   name: {
     type: String,
     required: true,
@@ -37,6 +37,6 @@ const employeeSchema = new Schema<Employee>({
   },
 }, { timestamps: true});
 
-const Employee = model<Employee>('Employee', employeeSchema);
+const Employee = model<IEmployee>('Employee', employeeSchema);
 
-export { Employee };
+export { Employee, IEmployee };
