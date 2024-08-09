@@ -7,15 +7,22 @@ const express_1 = __importDefault(require("express"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const employeeRoutes_1 = __importDefault(require("./src/routes/employeeRoutes"));
+const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
+const swagger_1 = require("./swagger");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
-const port = parseInt(process.env.PORT || '3000', 10);
+const app_url = process.env.APP_URL || '';
+const app_port = parseInt(process.env.APP_PORT || '3000', 10);
 const databaseUrl = process.env.DATABASE_URL || '';
 mongoose_1.default.connect(databaseUrl).then(() => {
-    console.log(`App running at http://localhost:${port}`);
-    app.listen(port);
+    console.log(`App running at ${app_url}:${app_port}`);
+    app.listen(app_port);
 }).catch(() => {
     console.log("we found some errors");
 });
 app.use(express_1.default.json());
+app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_1.swaggerSpec));
 app.use('/api', employeeRoutes_1.default);
+app.use('*', (req, res) => {
+    res.status(404).json({ message: 'Route not found' });
+});

@@ -1,30 +1,224 @@
 import { Request, Response } from 'express';
 import { Employee } from '../models/Employee';
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Employee:
+ *       type: object
+ *       required:
+ *         - name
+ *         - position
+ *         - department
+ *         - hireDate
+ *         - salary
+ *         - contactDetails
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Employee's name
+ *         position:
+ *           type: string
+ *           description: Employee's position
+ *         department:
+ *           type: string
+ *           description: Employee's department
+ *         hireDate:
+ *           type: string
+ *           format: date
+ *           description: Date when the employee was hired
+ *         salary:
+ *           type: number
+ *           description: Employee's salary
+ *         contactDetails:
+ *           type: string
+ *           description: Employee's contact details
+ *       example:
+ *         name: John Doe
+ *         position: Software Developer
+ *         department: IT
+ *         hireDate: 2021-05-10
+ *         salary: 60000
+ *         contactDetails: johndoe@example.com
+ */
+
+/**
+ * @swagger
+ * tags:
+ *   name: Employees
+ *   description: The employees managing API
+ */
+
 // Get all employees
+
+/**
+ * @swagger
+ * /api/employees:
+ *   get:
+ *     summary: Returns the list of all the employees
+ *     tags: [Employees]
+ *     responses:
+ *       200:
+ *         description: The list of the employees
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Employee'
+ */
 const getEmployees = async (req: Request, res: Response): Promise<void> => {
   try {
       const employees = await Employee.find();
-      res.status(200).send(employees);
-  } catch (error) {
-    console.log("erros here", error);
-    
-      res.status(500).send(error);
+      res.status(200).json(employees);
+  } catch (error) {    
+      res.status(500).json(error);
   }
 };
 
 // Create a new employee
+
+/**
+ * @swagger
+ * /api/employees:
+ *   post:
+ *     summary: Create a new employee
+ *     tags: [Employees]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Employee'
+ *     responses:
+ *       201:
+ *         description: The employee was successfully created
+ *       500:
+ *         description: Some server error
+ */
 const createEmployee = async (req: Request, res: Response): Promise<void> => {
   try {
       const employee = new Employee(req.body);
       await employee.save();
-      res.status(201).send(employee);
+      res.status(201).json({message: 'Employee created successfully'});
   } catch (error) {
-      res.status(400).send(error);
+      res.status(400).json(error);
+  }
+};
+
+// Get a single employee by ID
+/**
+ * @swagger
+ * /api/employees/{id}:
+ *   get:
+ *     summary: Get the employee by id
+ *     tags: [Employees]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The employee id
+ *     responses:
+ *       200:
+ *         description: The employee description by id
+ *         contents:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Employee'
+ *       404:
+ *         description: The employee was not found
+ *       500:
+ *         description: Cast to ObjectId failed for value
+ */
+const getEmployeeById = async (req: Request, res: Response): Promise<void> => {
+  try {    
+      const employee = await Employee.findById(req.params.id);
+      
+      res.status(200).json(employee);
+
+  } catch (error) {
+      res.status(500).json({message: "Employee not found"});
+  }
+};
+
+// Update an employee by ID
+
+/**
+ * @swagger
+ * /api/employees/{id}:
+ *   put:
+ *     summary: Update the employee by the id
+ *     tags: [Employees]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The employee id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Employee'
+ *     responses:
+ *       200:
+ *         description: The employee was updated
+ *       404:
+ *         description: The employee was not found
+ *       500:
+ *         description: Some error happened
+ */
+const updateEmployee = async (req: Request, res: Response): Promise<void> => {
+  try {
+      await Employee.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+      
+      res.status(200).json({message: "Employee updated successfully"});
+
+  } catch (error) {
+      res.status(400).json({message: "Employee not found"});
+  }
+};
+
+// Delete an employee by ID
+/**
+ * @swagger
+ * /api/employees/{id}:
+ *   delete:
+ *     summary: Delete the employee
+ *     tags: [Employees]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The employee id
+ *     responses:
+ *       200:
+ *         description: The employee was deleted
+ *       404:
+ *         description: The employee was not found
+ */
+const deleteEmployee = async (req: Request, res: Response): Promise<void> => {
+  try {
+      await Employee.findByIdAndDelete(req.params.id);
+
+          res.status(200).json({message: "Employee deleted successfully"});
+
+  } catch (error) {
+      res.status(500).json({message: "Employee not found"});
   }
 };
 
 export {
   getEmployees,
-  createEmployee
+  createEmployee,
+  getEmployeeById,
+  updateEmployee,
+  deleteEmployee
 }
