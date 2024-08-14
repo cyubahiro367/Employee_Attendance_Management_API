@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteEmployee = exports.updateEmployee = exports.getEmployeeById = exports.createEmployee = exports.getEmployees = void 0;
 const Employee_1 = require("../models/Employee");
+const Attendance_1 = require("../models/Attendance");
 const getEmployees = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const employees = yield Employee_1.Employee.find();
@@ -36,7 +37,7 @@ const createEmployee = (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.status(201).json({ message: "Employee created successfully" });
     }
     catch (error) {
-        res.status(400).json({ message: "An error occurred while creating the employee" });
+        res.status(500).json({ message: "An error occurred while creating the employee" });
     }
 });
 exports.createEmployee = createEmployee;
@@ -90,6 +91,11 @@ const deleteEmployee = (req, res) => __awaiter(void 0, void 0, void 0, function*
         const { id } = req.params;
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {
             res.status(400).json({ message: "Invalid employee ID format" });
+            return;
+        }
+        const attendances = yield Attendance_1.Attendance.find({ employeeId: id }).populate('employeeId');
+        if (attendances.length > 0) {
+            res.status(403).json({ message: 'Employee have attendance you can not delete' });
             return;
         }
         const deletedEmployee = yield Employee_1.Employee.findByIdAndDelete(id);

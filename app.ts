@@ -1,6 +1,7 @@
 import express, {Express, Request, Response} from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import attendanceRoutes from './src/routes/attendanceRoutes'
 import employeeRoutes from './src/routes/employeeRoutes';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
@@ -30,6 +31,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Employee routes
 app.use('/api', employeeRoutes);
+
+// Attendance routes
+app.use('/api', attendanceRoutes);
 
 app.use('*', (req: Request, res: Response): void => {
   res.status(404).json({ message: 'Route not found' });

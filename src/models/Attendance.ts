@@ -4,8 +4,8 @@ import { IEmployee } from "./Employee";
 interface IAttendance extends Document {
   employeeId: Types.ObjectId | IEmployee;
   date: Date;
-  clockInTime: number;
-  clockOutTime: number;
+  clockInTime: Date;
+  clockOutTime: Date;
 }
 
 const attendanceSchema = new Schema<IAttendance>({
@@ -19,11 +19,11 @@ const attendanceSchema = new Schema<IAttendance>({
     required: true,
   },
   clockInTime: {
-    type: Number,
+    type: Date,
     required: true,
   },
   clockOutTime: {
-    type: Number,
+    type: Date,
     required: true,
   },
 }, { timestamps: true});

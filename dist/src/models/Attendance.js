@@ -13,11 +13,11 @@ const attendanceSchema = new mongoose_1.Schema({
         required: true,
     },
     clockInTime: {
-        type: Number,
+        type: Date,
         required: true,
     },
     clockOutTime: {
-        type: Number,
+        type: Date,
         required: true,
     },
 }, { timestamps: true });

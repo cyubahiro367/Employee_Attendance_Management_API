@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Employee, IEmployee } from "../models/Employee";
+import { Attendance } from "../models/Attendance";
 
 /**
  * @swagger
@@ -114,7 +115,7 @@ const createEmployee = async (req: Request, res: Response): Promise<void> => {
     await newEmployee.save();
     res.status(201).json({ message: "Employee created successfully" });
   } catch (error) {
-    res.status(400).json({ message: "An error occurred while creating the employee" });
+    res.status(500).json({ message: "An error occurred while creating the employee" });
   }
 };
 
@@ -259,6 +260,13 @@ const deleteEmployee = async (req: Request, res: Response): Promise<void> => {
 
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
       res.status(400).json({ message: "Invalid employee ID format" });
+      return;
+    }
+
+    const attendances = await Attendance.find({ employeeId: id }).populate('employeeId');
+    
+    if (attendances.length > 0) {
+      res.status(403).json({ message: 'Employee have attendance you can not delete' });
       return;
     }
 

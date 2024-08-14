@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const attendanceRoutes_1 = __importDefault(require("./src/routes/attendanceRoutes"));
 const employeeRoutes_1 = __importDefault(require("./src/routes/employeeRoutes"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swagger_1 = require("./swagger");
@@ -25,6 +26,7 @@ app.use(express_1.default.json());
 app.use(errorHandler_1.errorHandler);
 app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_1.swaggerSpec));
 app.use('/api', employeeRoutes_1.default);
+app.use('/api', attendanceRoutes_1.default);
 app.use('*', (req, res) => {
     res.status(404).json({ message: 'Route not found' });
 });

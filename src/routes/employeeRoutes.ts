@@ -5,8 +5,8 @@ import { validateEmployee } from '../middleware/validateEmployee';
 
 const router = express.Router();
 
-router.post('/employees', validateEmployee, createEmployee);
 router.get('/employees', getEmployees);
+router.post('/employees', validateEmployee, createEmployee);
 router.get('/employees/:id', getEmployeeById);
 router.put('/employees/:id', validateEmployee, updateEmployee);
 router.delete('/employees/:id', deleteEmployee);
