@@ -6,6 +6,7 @@ import employeeRoutes from './src/routes/employeeRoutes';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
 import { errorHandler } from './src/middleware/errorHandler';
+import bodyParser from 'body-parser';
 
 
 
@@ -23,7 +24,7 @@ mongoose.connect(databaseUrl).then(() => {
   console.log("we found some errors");
 });
 
-app.use(express.json());
+app.use(bodyParser.json());
 app.use(errorHandler);
 
 // Swagger UI setup
